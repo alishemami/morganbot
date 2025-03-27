@@ -9,6 +9,14 @@ import os
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
+from flask import Flask
+
+# تنظیم Flask
+app = Flask(__name__)
+
+@app.route('/')
+def health_check():
+    return "OK", 200
 
 # ---------- تنظیمات ----------
 TELEGRAM_BOT_TOKEN = "8028923358:AAFDKzIahr5EEz9_9ax06gkswVQ-HrbntXc"
