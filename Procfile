@@ -1,1 +1,1 @@
-worker: python morganbot.py
+web: python morganbot.py
