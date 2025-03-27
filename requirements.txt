@@ -1,0 +1,6 @@
+ccxt==4.4.69
+ta==0.10.2
+pandas
+numpy
+plotly
+requests
