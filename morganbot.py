@@ -10,6 +10,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from flask import Flask
+import threading
 
 # تنظیم Flask
 app = Flask(__name__)
@@ -535,5 +536,9 @@ def main():
             except Exception as e:
                 print(f"{datetime.now()} - خطا در پردازش موازی: {e}")
 
+# اجرای بات توی یه ترد جدا
 if __name__ == "__main__":
-    main()
+    bot_thread = threading.Thread(target=main)
+    bot_thread.start()
+    # اجرای Flask روی پورت 8000
+    app.run(host='0.0.0.0', port=8000)
