@@ -62,10 +62,12 @@ FUTURES_SYMBOLS = [
 
 def test_connection():
     try:
-        exchange.fetch_ticker('BTCUSDT')
-        print(f"{datetime.now()} - اتصال به API بایننس برقراره!")
+        print(f"{datetime.now()} - تلاش برای اتصال به API بایننس")
+        ticker = exchange.fetch_ticker('BTCUSDT')
+        print(f"{datetime.now()} - اتصال به API بایننس برقراره! تیک: {ticker['last']}")
     except Exception as e:
-        print(f"{datetime.now()} - مشکل اتصال: {e}")
+        print(f"{datetime.now()} - مشکل اتصال: {str(e)}")
+        raise  # خطا رو بالا می‌بره تا توی main هم نشون داده بشه
 
 def validate_symbols():
     try:
@@ -77,13 +79,8 @@ def validate_symbols():
         return []
 
 def get_futures_symbols():
-    valid_symbols = validate_symbols()
-    if not valid_symbols:
-        print(f"{datetime.now()} - لیست نمادها خالی است. از لیست پیش‌فرض استفاده می‌شود.")
-        return FUTURES_SYMBOLS[:200]
-    filtered_symbols = [s for s in FUTURES_SYMBOLS if s in valid_symbols]
-    print(f"{datetime.now()} - تعداد جفت‌ارزها قبل از فیلتر: {len(FUTURES_SYMBOLS)}, بعد از فیلتر: {len(filtered_symbols)}")
-    return filtered_symbols[:200]
+    print(f"{datetime.now()} - استفاده از لیست ثابت نمادها")
+    return FUTURES_SYMBOLS
 
 def get_live_data(symbol, timeframe=TIMEFRAME, limit=LIMIT):
     try:
@@ -503,14 +500,17 @@ def monitor_symbol(symbol, timeframe=TIMEFRAME, interval=INTERVAL):
             time.sleep(interval)
 
 def main():
+    print(f"{datetime.now()} - شروع تابع main")
     test_connection()
+    print(f"{datetime.now()} - بعد از test_connection")
     symbols = get_futures_symbols()
     print(f"{datetime.now()} - تعداد جفت‌ارزهای فیوچرز انتخاب‌شده: {len(symbols)}")
     if not symbols:
         print(f"{datetime.now()} - هیچ جفت‌ارزی پیدا نشد. برنامه متوقف می‌شود.")
         return
 
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    print(f"{datetime.now()} - شروع ThreadPoolExecutor")
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {executor.submit(monitor_symbol, symbol): symbol for symbol in symbols}
         for future in as_completed(futures):
             try:
@@ -520,7 +520,9 @@ def main():
 
 # اجرای بات توی یه ترد جدا
 if __name__ == "__main__":
+    print(f"{datetime.now()} - شروع برنامه")
     bot_thread = threading.Thread(target=main)
     bot_thread.start()
+    print(f"{datetime.now()} - ترد بات شروع شد")
     # اجرای Flask روی پورت 8000
     app.run(host='0.0.0.0', port=8000)
